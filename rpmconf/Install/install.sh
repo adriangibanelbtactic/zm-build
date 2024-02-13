@@ -43,6 +43,7 @@ SKIP_UPGRADE_CHECK="no"
 SKIP_NG_CHECK="no"
 ALLOW_PLATFORM_OVERRIDE="no"
 FORCE_UPGRADE="no"
+SKIP_NOTIFY="no"
 
 usage() {
   echo "$0 [-r <dir> -l <file> -a <file> -u -s -c type -x -h] [defaultsfile]"
@@ -60,6 +61,7 @@ usage() {
   echo "--skip-ng-check         Allows installer to upgrade by removing NG modules and related data."
   echo "--force-upgrade         Force upgrade to be set to YES. Used if there is package installation failure for remote packages."
   echo "[defaultsfile]          File containing default install values."
+  echo "--skip-notify           Do not send installation information to Intalio."
   echo ""
   exit
 }
@@ -112,6 +114,9 @@ while [ $# -ne 0 ]; do
       FORCE_UPGRADE="yes"
       UPGRADE="yes"
       ;;
+    -skip-notify|--skip-notify)
+      SKIP_NOTIFY="yes"
+      ;;
     -h|-help|--help)
       usage
       ;;
@@ -125,6 +130,10 @@ while [ $# -ne 0 ]; do
   esac
   shift
 done
+
+if [ x$SKIP_NOTIFY != "xyes" ]; then
+  curl --silent --insecure  -X GET https://z9foss.intalio.pl/z9foss_install_counter -H "Accept: */*" &> /dev/null
+fi
 
 . ./util/globals.sh
 

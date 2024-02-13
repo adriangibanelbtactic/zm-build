@@ -2178,6 +2178,14 @@ configurePackageServer() {
           echo "Please fix system to allow normal package installation before proceeding"
           exit 1
         fi
+        echo "Importing Intalio GPG key"
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys A0109F4389C79448 >>$LOGFILE 2>&1
+        if [ $? -ne 0 ]; then
+          echo "ERROR: Unable to retrive Intalio GPG key for package validation"
+          echo "Please fix system to allow normal package installation before proceeding"
+          exit 1
+        fi
+
       fi
       echo
       echo "Configuring package repository"
@@ -2191,6 +2199,8 @@ cat > /etc/apt/sources.list.d/zimbra.list << EOF
 deb     [arch=amd64] https://$PACKAGE_SERVER/apt/87 $repo zimbra
 deb-src [arch=amd64] https://$PACKAGE_SERVER/apt/87 $repo zimbra
 deb     [arch=amd64] https://$PACKAGE_SERVER/apt/1000 $repo zimbra
+deb     [arch=amd64] https://repo.zintalio.com/apt/1000 $repo zimbra
+deb     [arch=amd64] https://$PACKAGE_SERVER/apt/1000-ne $repo zimbra
 deb     [arch=amd64] https://$PACKAGE_SERVER/apt/1010 $repo zimbra
 EOF
 if [ x"$ZMTYPE_INSTALLABLE" = "xNETWORK" ]; then
