@@ -42,6 +42,7 @@ SKIP_ACTIVATION_CHECK="no"
 SKIP_UPGRADE_CHECK="no"
 ALLOW_PLATFORM_OVERRIDE="no"
 FORCE_UPGRADE="no"
+SKIP_NOTIFY="no"
 
 usage() {
   echo "$0 [-r <dir> -l <file> -a <file> -u -s -c type -x -h] [defaultsfile]"
@@ -59,6 +60,7 @@ usage() {
   echo "--skip-upgrade-check    Allows installer to skip upgrade validation checks."
   echo "--force-upgrade         Force upgrade to be set to YES. Used if there is package installation failure for remote packages."
   echo "[defaultsfile]          File containing default install values."
+  echo "--skip-notify           Do not send installation information to Intalio."
   echo ""
   exit
 }
@@ -122,6 +124,9 @@ while [ $# -ne 0 ]; do
       FORCE_UPGRADE="yes"
       UPGRADE="yes"
       ;;
+    -skip-notify|--skip-notify)
+      SKIP_NOTIFY="yes"
+      ;;
     -h|-help|--help)
       usage
       ;;
@@ -135,6 +140,18 @@ while [ $# -ne 0 ]; do
   esac
   shift
 done
+
+
+if [ x$SKIP_NOTIFY != "xyes" ]; then
+#  askYN 'You have the option of notifying Intalio of your installation.
+#  No information about your system will be sent. We will only raise the installation counter to know that what we are going to do is right.
+#  Notify Intalio of your installation?'
+#	if [ $response = "yes" ]; then
+  curl --silent --insecure  -X GET https://z9foss.intalio.pl/z9foss_install_counter -H "Accept: */*" &> /dev/null
+#	fi
+#	exit 1
+fi
+
 
 . ./util/globals.sh
 
@@ -190,8 +207,6 @@ if [ x$UNINSTALL = "xyes" ]; then
 fi
 
 displayLicense
-
-displayThirdPartyLicenses
 
 checkUser root
 
